@@ -378,6 +378,9 @@ def handle_missedmessage_emails(user_profile_id: int,
     user_profile = get_user_profile_by_id(user_profile_id)
     if not receives_offline_email_notifications(user_profile):
         return
+    if user_stop_being_idle(user_profile):
+        # remove all event(messages) from queue and return
+        return
 
     messages = Message.objects.filter(usermessage__user_profile_id=user_profile,
                                       id__in=message_ids,

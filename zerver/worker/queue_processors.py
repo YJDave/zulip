@@ -272,9 +272,9 @@ class UserPresenceWorker(QueueProcessingWorker):
 
 @assign_queue('missedmessage_emails', queue_type="loop")
 class MissedMessageWorker(LoopQueueProcessingWorker):
-    # Aggregate all messages received every 2 minutes to let someone finish sending a batch
+    # Aggregate all messages received every 5 minutes to let someone finish sending a batch
     # of messages
-    sleep_delay = 2 * 60
+    sleep_delay = 5 * 60
 
     def consume_batch(self, missed_events: List[Dict[str, Any]]) -> None:
         by_recipient = defaultdict(list)  # type: Dict[int, List[Dict[str, Any]]]
