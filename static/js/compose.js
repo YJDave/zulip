@@ -578,48 +578,45 @@ exports.handle_keydown = function (event, textarea) {
 
     if ((isBold || isItalic || isLink) && isCmdOrCtrl) {
         var range = textarea.range();
-        function wrap_text_with_markdown(prefix, suffix) {
+        function wrap_text_with_markdown(prefix, suffix, is_url = false) {
             if (!document.execCommand('insertText', false, prefix + range.text + suffix)) {
                 textarea.range(range.start, range.end).range(prefix + range.text + suffix);
             }
             event.preventDefault();
+
+            if (range.length !== undefined) {
+                if (is_url && range.length > 0) {
+                    var position = textarea.caret();
+                    var txt = document.getElementById(textarea[0].id);
+
+                    // Include selected text in between [] parantheses and insert '(url)'
+                    // where "url" should be automatically selected.
+                    // Position of cursor depends on whether browser supports exec
+                    // command or not. So set cursor position accrodingly.
+                    if (document.queryCommandEnabled('insertText')) {
+                        txt.selectionStart = position - 4;
+                        txt.selectionEnd = position - 1;
+                    } else {
+                        txt.selectionStart = position + range.length + 3;
+                        txt.selectionEnd = position + range.length + 6;
+                    }
+                } else {
+                    textarea.caret(textarea.caret() - suffix.length);
+                }
+            }
         }
 
         if (isBold) {
             // ctrl + b: Convert selected text to bold text
             wrap_text_with_markdown("**", "**");
-            if (!range.length) {
-                textarea.caret(textarea.caret() - 2);
-            }
         }
         if (isItalic) {
             // ctrl + i: Convert selected text to italic text
             wrap_text_with_markdown("*", "*");
-            if (!range.length) {
-                textarea.caret(textarea.caret() - 1);
-            }
         }
         if (isLink) {
             // ctrl + l: Insert a link to selected text
-            wrap_text_with_markdown("[", "](url)");
-            var position = textarea.caret();
-            var txt = document.getElementById(textarea[0].id);
-
-            // Include selected text in between [] parantheses and insert '(url)'
-            // where "url" should be automatically selected.
-            // Position of cursor depends on whether browser supports exec
-            // command or not. So set cursor position accrodingly.
-            if (range.length > 0) {
-                if (document.queryCommandEnabled('insertText')) {
-                    txt.selectionStart = position - 4;
-                    txt.selectionEnd = position - 1;
-                } else {
-                    txt.selectionStart = position + range.length + 3;
-                    txt.selectionEnd = position + range.length + 6;
-                }
-            } else {
-                textarea.caret(textarea.caret() - 6);
-            }
+            wrap_text_with_markdown("[", "](url)", true);
         }
 
         compose_ui.autosize_textarea();
