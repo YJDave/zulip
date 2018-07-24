@@ -441,6 +441,8 @@ exports.create_sub_from_server_data = function (stream_name, attrs) {
         push_notifications: page_params.enable_stream_push_notifications,
         email_notifications: page_params.enable_stream_email_notifications,
         description: '',
+        stream_weekly_traffic: null,
+        is_old_stream: true,
     });
 
     exports.set_subscribers(sub, subscriber_user_ids);
